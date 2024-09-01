@@ -14,12 +14,17 @@ import javafx.scene.input.ClipboardContent;
 import javafx.stage.FileChooser;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.FileSystem;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class Controller implements Initializable {
 
@@ -148,7 +153,7 @@ public class Controller implements Initializable {
     }
 
 
-    static String filePath = null;
+    static String filePath = "1";
     DocumentService documentService = new DocumentService();
 
 //    MSDocumentService msDocumentService = new MSDocumentService();
@@ -233,9 +238,13 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    void saveIdentitySheet() {
+    void saveIdentitySheet() throws URISyntaxException, IOException {
+        InputStream template = getClass().getClassLoader().getResourceAsStream("template-IS.docx");
 
-        Document document = new Document("src/main/resources/com/tsb/template-IS.docx");
+
+
+        Document document = new Document();
+        document.loadFromStream(template, FileFormat.Docx_2013);
 
         document.replace("$electronicDocumentDesignation", eDocumentDesignation.getText(), false, true);
         document.replace("$documentName", documentName.getText(), false, true);
@@ -254,12 +263,10 @@ public class Controller implements Initializable {
         document.replace("$dateSign", dateSign.getText(), false, true);
         document.replace("$projectCode", projectCode.getText() + "-УЛ", false, true);
 
-        String identityDocName = DocumentService.removeFileExtension(filePath, true) + "-ИУЛ.docx";
+        int counter = 1;
 
         //Save the result document
-        document.saveToFile(identityDocName, FileFormat.Docx_2013);
-
-        //msDocumentService.replaceText("C:\\Users\\WINDOW\\OneDrive\\Desktop\\Разработка ИУЛ\\Новая папка\\input.doc");
+        document.saveToFile("ИУЛ" + ++counter +".docx", FileFormat.Docx_2013);
     }
 
     String clearText = "";
